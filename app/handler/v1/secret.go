@@ -28,6 +28,7 @@ func NewSecretHandler(bs BusinessSecret) SecretHandler {
 }
 
 func (sh SecretHandler) GetSecret(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
 	secret, err := sh.businessSecret.GetSecret(c.Request.Context())
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
