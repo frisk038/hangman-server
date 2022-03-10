@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/frisk038/hangman-server/business/entity"
 )
@@ -20,7 +21,8 @@ func GenerateDailySecret() (entity.Secret, error) {
 
 	var line int
 	scanner := bufio.NewScanner(f)
-	wantedLine := rand.Intn(maxNbWord)
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	wantedLine := random.Intn(maxNbWord)
 	for scanner.Scan() {
 		if line == wantedLine {
 			return entity.Secret{
