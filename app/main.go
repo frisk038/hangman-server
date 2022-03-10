@@ -5,6 +5,7 @@ import (
 	"os"
 
 	v1 "github.com/frisk038/hangman-server/app/handler/v1"
+	"github.com/frisk038/hangman-server/business/usecase"
 	"github.com/frisk038/hangman-server/infra/repository"
 	"github.com/gin-gonic/gin"
 )
@@ -15,16 +16,23 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
-	_, err := repository.NewClient()
+	// Create DB
+	repo, err := repository.NewClient()
 	if err != nil {
 		log.Fatalf("db init fail %s", err)
 	}
 
+	// Create business
+	ps := usecase.NewProcessSecret(repo)
+
+	// Create handler
+	handlers := v1.NewSecretHandler(ps)
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Logger())
 
-	router.GET("/secret", v1.GetSecret)
+	router.GET("/getsecret", handlers.GetSecret)
+	router.GET("/insertsecret", handlers.GenerateSecret)
 
 	router.Run(":" + port)
 }

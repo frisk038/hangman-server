@@ -1,21 +1,42 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/frisk038/hangman-server/business/usecase"
+	"github.com/frisk038/hangman-server/business/entity"
 	"github.com/gin-gonic/gin"
 )
 
 type secretRsp struct {
-	Number int64    `json:"number"`
+	Number int      `json:"number"`
 	Secret []string `json:"secret"`
 }
 
-func GetSecret(c *gin.Context) {
-	secret, err := usecase.GenerateDailySecret()
+type BusinessSecret interface {
+	InsertSecret(ctx context.Context) error
+	GetSecret(ctx context.Context) (entity.Secret, error)
+}
+
+type SecretHandler struct {
+	businessSecret BusinessSecret
+}
+
+func NewSecretHandler(bs BusinessSecret) SecretHandler {
+	return SecretHandler{businessSecret: bs}
+}
+
+func (sh SecretHandler) GenerateSecret(c *gin.Context) {
+	if err := sh.businessSecret.InsertSecret(c.Request.Context()); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+}
+
+func (sh SecretHandler) GetSecret(c *gin.Context) {
+	secret, err := sh.businessSecret.GetSecret(c.Request.Context())
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"math/rand"
 	"os"
@@ -12,7 +13,40 @@ import (
 
 const maxNbWord = 386264
 
-func GenerateDailySecret() (entity.Secret, error) {
+type repository interface {
+	GetYesterdayNumber(ctx context.Context) (int, error)
+	InsertTodaySecret(ctx context.Context, secret entity.Secret) error
+	SelectTodaySecret(ctx context.Context) (entity.Secret, error)
+}
+
+type ProcessSecret struct {
+	repo repository
+}
+
+func NewProcessSecret(repo repository) ProcessSecret {
+	return ProcessSecret{repo: repo}
+}
+
+func (ps ProcessSecret) InsertSecret(ctx context.Context) error {
+	secret, err := ps.generateDailySecret()
+	if err != nil {
+		return err
+	}
+
+	nb, err := ps.repo.GetYesterdayNumber(ctx)
+	if err != nil {
+		return err
+	}
+
+	secret.Number = nb + 1
+	return ps.repo.InsertTodaySecret(ctx, secret)
+}
+
+func (ps ProcessSecret) GetSecret(ctx context.Context) (entity.Secret, error) {
+	return ps.repo.SelectTodaySecret(ctx)
+}
+
+func (ps ProcessSecret) generateDailySecret() (entity.Secret, error) {
 	f, err := os.Open("./business/usecase/dico.txt")
 	if err != nil {
 		dir, _ := os.Getwd()
