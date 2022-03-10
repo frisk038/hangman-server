@@ -1,9 +1,16 @@
 package cron
 
-import "github.com/robfig/cron/v3"
+import (
+	"log"
+
+	"github.com/robfig/cron/v3"
+)
 
 func NewCronMidnight(task func()) *cron.Cron {
 	c := cron.New()
-	c.AddFunc("@every 0h05m00s", task)
+	_, err := c.AddFunc("@every 0h05m00s", task)
+	if err != nil {
+		log.Fatalf("adding cron task fail : %s", err)
+	}
 	return c
 }
