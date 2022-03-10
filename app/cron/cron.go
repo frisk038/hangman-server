@@ -8,7 +8,7 @@ import (
 
 func NewCronMidnight(task func()) *cron.Cron {
 	c := cron.New()
-	_, err := c.AddFunc("@every 0h01m00s", task)
+	_, err := c.AddFunc("@midnight", task)
 	if err != nil {
 		log.Fatalf("adding cron task fail : %s", err)
 	}
