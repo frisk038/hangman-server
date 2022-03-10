@@ -1,16 +1,18 @@
 package repository
 
 import (
-	"database/sql"
+	"context"
 	"os"
+
+	"github.com/jackc/pgx/v4"
 )
 
 type Client struct {
-	db *sql.DB
+	db *pgx.Conn
 }
 
 func NewClient() (*Client, error) {
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
