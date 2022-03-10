@@ -13,9 +13,10 @@ import (
 const maxNbWord = 386264
 
 func GenerateDailySecret() (entity.Secret, error) {
-	f, err := os.Open("./dico.txt")
+	f, err := os.Open("./business/usecase/dico.txt")
 	if err != nil {
-		return entity.Secret{}, err
+		dir, _ := os.Getwd()
+		return entity.Secret{}, fmt.Errorf(" %w (%s)", err, dir)
 	}
 	defer f.Close()
 
