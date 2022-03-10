@@ -36,6 +36,6 @@ func (c *Client) InsertTodaySecret(ctx context.Context, secret entity.Secret) er
 
 func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
 	var secret entity.Secret
-	err := c.db.QueryRow(ctx, selectTodaySecret).Scan(secret.Number, secret.SecretWord)
+	err := c.db.QueryRow(ctx, selectTodaySecret).Scan(&secret.Number, &secret.SecretWord)
 	return secret, err
 }
