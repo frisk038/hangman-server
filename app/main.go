@@ -36,7 +36,7 @@ func main() {
 
 	// Create cron task
 	c := cron.NewCronMidnight(ps.InsertSecretTask)
-	c.Run()
+	c.Start()
 
 	router.Run(":" + port)
 }
