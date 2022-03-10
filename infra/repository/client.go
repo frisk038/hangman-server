@@ -27,11 +27,15 @@ func NewClient() (*Client, error) {
 func (c *Client) GetYesterdayNumber(ctx context.Context) (int, error) {
 	var num int
 	err := c.db.QueryRow(ctx, selectYesterdayNum).Scan(&num)
+	if err == pgx.ErrNoRows {
+		return 1, nil
+	}
 	return num, err
 }
 
 func (c *Client) InsertTodaySecret(ctx context.Context, secret entity.Secret) error {
-	return c.db.QueryRow(ctx, insertTodaySecret, secret.Number, secret.SecretWord).Scan()
+	row, _ := c.db.Query(ctx, insertTodaySecret, secret.Number, secret.SecretWord)
+	return row.Err()
 }
 
 func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
