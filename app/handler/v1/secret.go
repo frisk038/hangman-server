@@ -16,7 +16,6 @@ type secretRsp struct {
 }
 
 type BusinessSecret interface {
-	InsertSecret(ctx context.Context) error
 	GetSecret(ctx context.Context) (entity.Secret, error)
 }
 
@@ -26,13 +25,6 @@ type SecretHandler struct {
 
 func NewSecretHandler(bs BusinessSecret) SecretHandler {
 	return SecretHandler{businessSecret: bs}
-}
-
-func (sh SecretHandler) GenerateSecret(c *gin.Context) {
-	if err := sh.businessSecret.InsertSecret(c.Request.Context()); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
 }
 
 func (sh SecretHandler) GetSecret(c *gin.Context) {

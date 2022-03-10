@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/frisk038/hangman-server/app/cron"
 	v1 "github.com/frisk038/hangman-server/app/handler/v1"
 	"github.com/frisk038/hangman-server/business/usecase"
 	"github.com/frisk038/hangman-server/infra/repository"
@@ -27,12 +28,15 @@ func main() {
 
 	// Create handler
 	handlers := v1.NewSecretHandler(ps)
+
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Logger())
-
 	router.GET("/getsecret", handlers.GetSecret)
-	router.GET("/insertsecret", handlers.GenerateSecret)
+
+	// Create cron task
+	c := cron.NewCronMidnight(ps.InsertSecretTask)
+	c.Run()
 
 	router.Run(":" + port)
 }

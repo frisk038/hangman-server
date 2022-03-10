@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"time"
@@ -27,19 +28,22 @@ func NewProcessSecret(repo repository) ProcessSecret {
 	return ProcessSecret{repo: repo}
 }
 
-func (ps ProcessSecret) InsertSecret(ctx context.Context) error {
+func (ps ProcessSecret) InsertSecretTask() {
 	secret, err := ps.generateDailySecret()
 	if err != nil {
-		return err
+		log.Print(err)
 	}
 
-	nb, err := ps.repo.GetYesterdayNumber(ctx)
+	nb, err := ps.repo.GetYesterdayNumber(context.Background())
 	if err != nil {
-		return err
+		log.Print(err)
 	}
-
 	secret.Number = nb + 1
-	return ps.repo.InsertTodaySecret(ctx, secret)
+
+	err = ps.repo.InsertTodaySecret(context.Background(), secret)
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 func (ps ProcessSecret) GetSecret(ctx context.Context) (entity.Secret, error) {
