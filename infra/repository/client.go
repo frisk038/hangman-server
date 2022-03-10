@@ -28,13 +28,14 @@ func (c *Client) GetYesterdayNumber(ctx context.Context) (int, error) {
 	var num int
 	err := c.db.QueryRow(ctx, selectYesterdayNum).Scan(&num)
 	if err == pgx.ErrNoRows {
-		return 1, nil
+		return 0, nil
 	}
 	return num, err
 }
 
 func (c *Client) InsertTodaySecret(ctx context.Context, secret entity.Secret) error {
 	row, _ := c.db.Query(ctx, insertTodaySecret, secret.Number, secret.SecretWord)
+	defer row.Close()
 	return row.Err()
 }
 
