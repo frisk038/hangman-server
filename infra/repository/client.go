@@ -15,6 +15,7 @@ type Client struct {
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES ($1, $2);"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
+const insertUserScore = "INSERT  INTO  USERSCORE (USERID, SECRETNUM, SCORE) VALUES ($1, $2, $3);"
 
 func NewClient() (*Client, error) {
 	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
@@ -43,4 +44,10 @@ func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
 	var secret entity.Secret
 	err := c.db.QueryRow(ctx, selectTodaySecret).Scan(&secret.Number, &secret.SecretWord)
 	return secret, err
+}
+
+func (c *Client) InsertUserScore(ctx context.Context, score entity.Score) error {
+	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score)
+	defer row.Close()
+	return row.Err()
 }

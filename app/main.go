@@ -32,7 +32,8 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.GET("/getsecret", handlers.GetSecret)
+	router.GET("/secret", handlers.GetSecret)
+	router.POST("/score", handlers.PostScore)
 
 	// Create cron task
 	c := cron.NewCronMidnight(ps.InsertSecretTask)

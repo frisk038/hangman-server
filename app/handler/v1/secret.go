@@ -8,6 +8,7 @@ import (
 
 	"github.com/frisk038/hangman-server/business/entity"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 )
 
 type secretRsp struct {
@@ -15,8 +16,15 @@ type secretRsp struct {
 	Secret []string `json:"secret"`
 }
 
+type score struct {
+	UserID    uuid.UUID `json:"user_id" binding:"required"`
+	SecretNum int       `json:"secret_num" binding:"required"`
+	Score     int       `json:"score" binding:"required"`
+}
+
 type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
+	ProcessScore(ctx context.Context, score entity.Score) error
 }
 
 type SecretHandler struct {
@@ -43,4 +51,16 @@ func (sh SecretHandler) GetSecret(c *gin.Context) {
 		Number: secret.Number,
 		Secret: secretArr,
 	})
+}
+
+func (sh SecretHandler) PostScore(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	var score score
+	c.BindJSON(&score)
+	err := sh.businessSecret.ProcessScore(c.Request.Context(), entity.Score(score))
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.AbortWithStatus(200)
 }
