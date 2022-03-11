@@ -80,7 +80,7 @@ func (ps ProcessSecret) generateDailySecret() (entity.Secret, error) {
 }
 
 func (ps ProcessSecret) ProcessScore(ctx context.Context, score entity.Score) error {
-	if score.SecretNum < 0 {
+	if score.SecretNum <= 0 {
 		return fmt.Errorf("secret_num is not valid")
 	}
 	if score.Score < 0 || score.Score > 10 {
