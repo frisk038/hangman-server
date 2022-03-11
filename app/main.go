@@ -33,12 +33,7 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.GET("/secret", handlers.GetSecret)
-	router.POST("/score", func(context *gin.Context) {
-		context.Writer.Header().Add("Access-Control-Allow-Origin", "*")
-		context.Writer.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS")
-		context.Writer.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-		context.Next()
-	}, handlers.PostScore)
+	router.POST("/score", handlers.PostScore)
 
 	// Create cron task
 	c := cron.NewCronMidnight(ps.InsertSecretTask)
