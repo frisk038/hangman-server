@@ -37,7 +37,7 @@ func NewSecretHandler(bs BusinessSecret) SecretHandler {
 
 func (sh SecretHandler) GetSecret(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
-    c.Header("Access-Control-Allow-Methods", "GET")
+	c.Header("Access-Control-Allow-Methods", "GET")
 	secret, err := sh.businessSecret.GetSecret(c.Request.Context())
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -56,7 +56,9 @@ func (sh SecretHandler) GetSecret(c *gin.Context) {
 
 func (sh SecretHandler) PostScore(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
-    c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Headers", "*")
+
 	var score score
 	c.BindJSON(&score)
 	err := sh.businessSecret.ProcessScore(c.Request.Context(), entity.Score(score))
