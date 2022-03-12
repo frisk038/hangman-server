@@ -13,9 +13,9 @@ type Client struct {
 }
 
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
-const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES ($1, $2);"
+const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CONFLICT (NUM) DO NOTHING;"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
-const insertUserScore = "INSERT  INTO  USERSCORE (USERID, SECRETNUM, SCORE) VALUES ($1, $2, $3);"
+const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE) VALUES ($1, $2, $3);"
 
 func NewClient() (*Client, error) {
 	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
