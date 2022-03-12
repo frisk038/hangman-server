@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/frisk038/hangman-server/business"
@@ -35,10 +36,21 @@ type userRsp struct {
 	Reason string `json:"reason"`
 }
 
+type topUser struct {
+	Username string `json:"user_name" binding:"required"`
+	Score    int    `json:"score"`
+}
+
+type topUserRsp struct {
+	TopUser []topUser `json:"leaderboard"`
+	Status  string    `json:"status"`
+}
+
 type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
 	ProcessScore(ctx context.Context, score entity.Score) error
 	UpdateUserName(ctx context.Context, score entity.Score) error
+	GetTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error)
 }
 
 type SecretHandler struct {
@@ -107,5 +119,27 @@ func (sh SecretHandler) UpdateUserName(c *gin.Context) {
 		c.JSON(http.StatusOK, userRsp{Status: "Ok"})
 	default:
 		c.JSON(http.StatusInternalServerError, userRsp{Status: "KO", Reason: err.Error()})
+	}
+}
+
+func (sh SecretHandler) SelectTopUser(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	secretNum, err := strconv.Atoi(c.Query("secretnb"))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+
+	topPlayers, err := sh.businessSecret.GetTopPlayer(c.Request.Context(), secretNum)
+	switch err {
+	case business.SecretNumNotValid:
+		c.JSON(http.StatusBadRequest, topUserRsp{Status: err.Error()})
+	case nil:
+		jsTopPlayers := []topUser{}
+		for _, v := range topPlayers {
+			jsTopPlayers = append(jsTopPlayers, topUser{Username: v.UserName, Score: v.Score})
+		}
+		c.JSON(http.StatusOK, topUserRsp{TopUser: jsTopPlayers, Status: "Ok"})
+	default:
+		c.JSON(http.StatusInternalServerError, topUserRsp{Status: err.Error()})
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/frisk038/hangman-server/business"
 	"github.com/frisk038/hangman-server/business/entity"
 )
 
@@ -21,6 +22,7 @@ type repository interface {
 	SelectTodaySecret(ctx context.Context) (entity.Secret, error)
 	InsertUserScore(ctx context.Context, score entity.Score) error
 	UpdateUserName(ctx context.Context, score entity.Score) error
+	SelectTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error)
 }
 
 type ProcessSecret struct {
@@ -94,4 +96,12 @@ func (ps ProcessSecret) UpdateUserName(ctx context.Context, score entity.Score) 
 	}
 	score.UserName = strings.ToUpper(score.UserName)
 	return ps.repo.UpdateUserName(ctx, score)
+}
+
+func (ps ProcessSecret) GetTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error) {
+	if secretNum <= 0 {
+		return nil, business.SecretNumNotValid
+	}
+
+	return ps.repo.SelectTopPlayer(ctx, secretNum)
 }

@@ -35,6 +35,7 @@ func main() {
 	router.GET("/secret", handlers.GetSecret)
 	router.POST("/score", handlers.PostScore)
 	router.POST("/user", handlers.UpdateUserName)
+	router.GET("/top", handlers.SelectTopUser)
 
 	// Create cron task
 	c := cron.NewCronMidnight(ps.InsertSecretTask)

@@ -79,7 +79,7 @@ func (c *Client) UpdateUserName(ctx context.Context, score entity.Score) error {
 }
 
 func (c *Client) SelectTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error) {
-	row, err := c.db.Query(ctx, selectTopPlayer)
+	row, err := c.db.Query(ctx, selectTopPlayer, secretNum)
 	if err != nil {
 		return nil, err
 	}
