@@ -8,10 +8,11 @@ import (
 	"github.com/frisk038/hangman-server/business"
 	"github.com/frisk038/hangman-server/business/entity"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type Client struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
@@ -22,7 +23,7 @@ const updateUserName = "UPDATE USERSCORE SET NAME = $1 WHERE USERID = $2 AND SEC
 const selectTopPlayer = "SELECT DISTINCT ON (score) name, score FROM userscore where SECRETNUM = $1 and name is NOT NULL ORDER BY score LIMIT 3;"
 
 func NewClient() (*Client, error) {
-	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	db, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
