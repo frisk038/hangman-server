@@ -19,6 +19,7 @@ const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CON
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME) VALUES ($1, $2, $3, NULLIF($4, ''));"
 const updateUserName = "UPDATE USERSCORE SET NAME = $1 WHERE USERID = $2 AND SECRETNUM = $3 AND name IS NULL RETURNING USERID;"
+const selectTopPlayer = "SELECT DISTINCT ON (score) name, score FROM userscore where SECRETNUM = $1 and name is NOT NULL ORDER BY score LIMIT 3;"
 
 func NewClient() (*Client, error) {
 	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
@@ -75,4 +76,23 @@ func (c *Client) UpdateUserName(ctx context.Context, score entity.Score) error {
 	default:
 		return row.Err()
 	}
+}
+
+func (c *Client) SelectTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error) {
+	row, err := c.db.Query(ctx, selectTopPlayer)
+	if err != nil {
+		return nil, err
+	}
+	defer row.Close()
+
+	topN := []entity.Score{}
+	for row.Next() {
+		var top entity.Score
+		err := row.Scan(&top.UserName, &top.Score)
+		if err != nil {
+			return nil, err
+		}
+		topN = append(topN, top)
+	}
+	return topN, row.Err()
 }
