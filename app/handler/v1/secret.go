@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/frisk038/hangman-server/business"
 	"github.com/frisk038/hangman-server/business/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -22,9 +23,16 @@ type score struct {
 	Score     int       `json:"score" binding:"required"`
 }
 
+type username struct {
+	UserID    uuid.UUID `json:"user_id" binding:"required"`
+	SecretNum int       `json:"secret_num" binding:"required"`
+	Username  string    `json:"user_name" binding:"required"`
+}
+
 type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
 	ProcessScore(ctx context.Context, score entity.Score) error
+	UpdateUserName(ctx context.Context, score entity.Score) error
 }
 
 type SecretHandler struct {
@@ -60,10 +68,37 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 
 	var score score
 	c.BindJSON(&score)
-	err := sh.businessSecret.ProcessScore(c.Request.Context(), entity.Score(score))
+	err := sh.businessSecret.ProcessScore(c.Request.Context(), entity.Score{
+		UserID:    score.UserID,
+		SecretNum: score.SecretNum,
+		Score:     score.Score,
+	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	c.AbortWithStatus(200)
+}
+
+func (sh SecretHandler) UpdateUserName(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+
+	var user username
+	c.BindJSON(&user)
+	err := sh.businessSecret.UpdateUserName(c.Request.Context(), entity.Score{
+		UserID:    user.UserID,
+		SecretNum: user.SecretNum,
+		UserName:  user.Username,
+	})
+	switch err {
+	case business.ScoreNotValid, business.SecretNumNotValid,
+		business.UsernameNotValid:
+		c.AbortWithError(http.StatusBadRequest, err)
+	case nil:
+		c.AbortWithStatus(200)
+	default:
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
 }

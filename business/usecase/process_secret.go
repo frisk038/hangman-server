@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/frisk038/hangman-server/business/entity"
@@ -19,6 +20,7 @@ type repository interface {
 	InsertTodaySecret(ctx context.Context, secret entity.Secret) error
 	SelectTodaySecret(ctx context.Context) (entity.Secret, error)
 	InsertUserScore(ctx context.Context, score entity.Score) error
+	UpdateUserName(ctx context.Context, score entity.Score) error
 }
 
 type ProcessSecret struct {
@@ -80,12 +82,16 @@ func (ps ProcessSecret) generateDailySecret() (entity.Secret, error) {
 }
 
 func (ps ProcessSecret) ProcessScore(ctx context.Context, score entity.Score) error {
-	if score.SecretNum <= 0 {
-		return fmt.Errorf("secret_num is not valid")
+	if err := score.Validate(); err != nil {
+		return err
 	}
-	if score.Score < 0 || score.Score > 10 {
-		return fmt.Errorf("score is not valid")
-	}
-
 	return ps.repo.InsertUserScore(ctx, score)
+}
+
+func (ps ProcessSecret) UpdateUserName(ctx context.Context, score entity.Score) error {
+	if err := score.Validate(); err != nil {
+		return err
+	}
+	score.UserName = strings.ToUpper(score.UserName)
+	return ps.repo.UpdateUserName(ctx, score)
 }

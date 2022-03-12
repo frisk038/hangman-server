@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 
+	"github.com/frisk038/hangman-server/business"
 	"github.com/frisk038/hangman-server/business/entity"
 	"github.com/jackc/pgx/v4"
 )
@@ -16,6 +18,7 @@ const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 
 const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CONFLICT (NUM) DO NOTHING;"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE) VALUES ($1, $2, $3);"
+const updateUserName = "UPDATE USERSCORE SET NAME = $1 WHERE USERID = $2 AND SECRETNUM = $3 AND name IS NULL RETURNING USERID;"
 
 func NewClient() (*Client, error) {
 	db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
@@ -50,4 +53,26 @@ func (c *Client) InsertUserScore(ctx context.Context, score entity.Score) error 
 	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score)
 	defer row.Close()
 	return row.Err()
+}
+
+func (c *Client) UpdateUserName(ctx context.Context, score entity.Score) error {
+	row, err := c.db.Query(ctx, updateUserName, score.UserName, score.UserID, score.SecretNum)
+	if err != nil {
+		return err
+	}
+	defer row.Close()
+
+	nbRow := 0
+	for row.Next() {
+		nbRow++
+	}
+
+	switch {
+	case nbRow > 1:
+		return fmt.Errorf("insert user went wrong : (%s,%d)", score.UserID.String(), score.SecretNum)
+	case nbRow == 0:
+		return business.AlreadyExistUserErr
+	default:
+		return row.Err()
+	}
 }
