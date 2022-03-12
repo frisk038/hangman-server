@@ -29,6 +29,11 @@ type username struct {
 	Username  string    `json:"user_name" binding:"required"`
 }
 
+type userRsp struct {
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+}
+
 type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
 	ProcessScore(ctx context.Context, score entity.Score) error
@@ -95,10 +100,10 @@ func (sh SecretHandler) UpdateUserName(c *gin.Context) {
 	switch err {
 	case business.ScoreNotValid, business.SecretNumNotValid,
 		business.UsernameNotValid:
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, userRsp{Status: "KO", Reason: err.Error()})
 	case nil:
-		c.AbortWithStatus(200)
+		c.JSON(http.StatusOK, userRsp{Status: "Ok"})
 	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, userRsp{Status: "KO", Reason: err.Error()})
 	}
 }
