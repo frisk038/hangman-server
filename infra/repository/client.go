@@ -17,7 +17,7 @@ type Client struct {
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CONFLICT (NUM) DO NOTHING;"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
-const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE) VALUES ($1, $2, $3);"
+const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME) VALUES ($1, $2, $3, $4);"
 const updateUserName = "UPDATE USERSCORE SET NAME = $1 WHERE USERID = $2 AND SECRETNUM = $3 AND name IS NULL RETURNING USERID;"
 
 func NewClient() (*Client, error) {
@@ -50,7 +50,7 @@ func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
 }
 
 func (c *Client) InsertUserScore(ctx context.Context, score entity.Score) error {
-	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score)
+	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score, score.UserName)
 	defer row.Close()
 	return row.Err()
 }

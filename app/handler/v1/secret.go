@@ -20,7 +20,8 @@ type secretRsp struct {
 type score struct {
 	UserID    uuid.UUID `json:"user_id" binding:"required"`
 	SecretNum int       `json:"secret_num" binding:"required"`
-	Score     int       `json:"score" binding:"required"`
+	Score     int       `json:"score"`
+	Username  string    `json:"user_name"`
 }
 
 type username struct {
@@ -77,6 +78,7 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 		UserID:    score.UserID,
 		SecretNum: score.SecretNum,
 		Score:     score.Score,
+		UserName:  score.Username,
 	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
