@@ -14,7 +14,7 @@ import (
 	"github.com/frisk038/hangman-server/business/entity"
 )
 
-const maxNbWord = 386264
+const maxNbWord = 159829
 
 type repository interface {
 	GetYesterdayNumber(ctx context.Context) (int, error)
@@ -30,6 +30,7 @@ type ProcessSecret struct {
 }
 
 func NewProcessSecret(repo repository) ProcessSecret {
+	rand.Seed(time.Now().UnixNano())
 	return ProcessSecret{repo: repo}
 }
 
@@ -65,8 +66,8 @@ func (ps ProcessSecret) generateDailySecret() (entity.Secret, error) {
 
 	var line int
 	scanner := bufio.NewScanner(f)
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	wantedLine := random.Intn(maxNbWord)
+	wantedLine := rand.Intn(maxNbWord)
+
 	for scanner.Scan() {
 		if line == wantedLine {
 			return entity.Secret{

@@ -1,5 +1,13 @@
 package usecase
 
+import (
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
 // type mockRepo struct {
 // 	mock.Mock
 // }
@@ -10,13 +18,14 @@ package usecase
 // func (m mockRepo) InsertTodaySecret(ctx context.Context, secret entity.Secret) error
 // func (m mockRepo) SelectTodaySecret(ctx context.Context) (entity.Secret, error)
 
-// func TestGenerateDailySecret(t *testing.T) {
-// 	os.Chdir("../../")
-// 	t.Run("OK", func(t *testing.T) {
+func TestGenerateDailySecret(t *testing.T) {
+	os.Chdir("../../")
+	t.Run("OK", func(t *testing.T) {
 
-// 		word, err := generateDailySecret()
-// 		fmt.Println(word)
-// 		assert.NoError(t, err)
-// 		assert.NotEmpty(t, word)
-// 	})
-// }
+		p := NewProcessSecret(nil)
+		word, err := p.generateDailySecret()
+		fmt.Println(word)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, word)
+	})
+}
