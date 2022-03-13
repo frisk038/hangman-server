@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/frisk038/hangman-server/business"
 	"github.com/gofrs/uuid"
@@ -31,6 +32,8 @@ func (s Score) Validate() error {
 	if len(s.UserName) > 3 {
 		return fmt.Errorf("%w: (%s|%s)", business.UsernameNotValid, s.UserID.String(), s.UserName)
 	}
+
+	s.UserName = strings.ToUpper(s.UserName)
 
 	return nil
 }
