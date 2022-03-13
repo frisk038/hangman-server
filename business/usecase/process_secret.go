@@ -35,6 +35,7 @@ func NewProcessSecret(repo repository) ProcessSecret {
 }
 
 func (ps ProcessSecret) InsertSecretTask() {
+	fmt.Println("InsertSecretTask runing...")
 	secret, err := ps.generateDailySecret()
 	if err != nil {
 		log.Print(err)
