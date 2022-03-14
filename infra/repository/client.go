@@ -20,7 +20,9 @@ const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CON
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME) VALUES ($1, $2, $3, NULLIF($4, ''));"
 const updateUserName = "UPDATE USERSCORE SET NAME = $1 WHERE USERID = $2 AND SECRETNUM = $3 AND name IS NULL RETURNING USERID;"
-const selectTopPlayer = "SELECT DISTINCT ON (score) name, score FROM userscore where SECRETNUM = $1 and name is NOT NULL ORDER BY score LIMIT 3;"
+const selectTopPlayer = "select name, score from userscore where SECRETNUM = $1 AND NAME is not null  ORDER BY score LIMIT 3;"
+
+// const selectTopPlayer = "SELECT DISTINCT ON (score) name, score FROM userscore where SECRETNUM = $1 and name is NOT NULL ORDER BY score LIMIT 3;"
 
 func NewClient() (*Client, error) {
 	db, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
