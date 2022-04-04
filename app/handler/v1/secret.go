@@ -136,7 +136,7 @@ func (sh SecretHandler) SelectTopUser(c *gin.Context) {
 	case nil:
 		jsTopPlayers := []topUser{}
 		for _, v := range topPlayers {
-			jsTopPlayers = append(jsTopPlayers, topUser{Username: v.UserName, Score: v.Score})
+			jsTopPlayers = append(jsTopPlayers, topUser{Username: strings.ToUpper(v.UserName), Score: v.Score})
 		}
 		c.JSON(http.StatusOK, topUserRsp{TopUser: jsTopPlayers, Status: "Ok"})
 	default:
