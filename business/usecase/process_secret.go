@@ -7,7 +7,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/frisk038/hangman-server/business"
@@ -96,7 +95,6 @@ func (ps ProcessSecret) UpdateUserName(ctx context.Context, score entity.Score) 
 	if err := score.Validate(); err != nil {
 		return err
 	}
-	score.UserName = strings.ToUpper(score.UserName)
 	return ps.repo.UpdateUserName(ctx, score)
 }
 

@@ -90,7 +90,7 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 		UserID:    score.UserID,
 		SecretNum: score.SecretNum,
 		Score:     score.Score,
-		UserName:  score.Username,
+		UserName:  strings.ToUpper(score.Username),
 	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -109,7 +109,7 @@ func (sh SecretHandler) UpdateUserName(c *gin.Context) {
 	err := sh.businessSecret.UpdateUserName(c.Request.Context(), entity.Score{
 		UserID:    user.UserID,
 		SecretNum: user.SecretNum,
-		UserName:  user.Username,
+		UserName:  strings.ToUpper(user.Username),
 	})
 	switch err {
 	case business.ScoreNotValid, business.SecretNumNotValid,
