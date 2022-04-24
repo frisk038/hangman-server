@@ -88,6 +88,9 @@ func (ps ProcessSecret) ProcessScore(ctx context.Context, score entity.Score) er
 	if err := score.Validate(); err != nil {
 		return err
 	}
+
+	score.Score = 10 - score.Score
+
 	return ps.repo.InsertUserScore(ctx, score)
 }
 
