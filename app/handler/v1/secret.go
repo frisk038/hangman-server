@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/frisk038/hangman-server/business"
@@ -50,7 +49,7 @@ type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
 	ProcessScore(ctx context.Context, score entity.Score) error
 	UpdateUserName(ctx context.Context, score entity.Score) error
-	GetTopPlayer(ctx context.Context, secretNum int) ([]entity.Score, error)
+	GetTopPlayer(ctx context.Context) ([]entity.Score, error)
 }
 
 type SecretHandler struct {
@@ -124,12 +123,7 @@ func (sh SecretHandler) UpdateUserName(c *gin.Context) {
 
 func (sh SecretHandler) SelectTopUser(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
-	secretNum, err := strconv.Atoi(c.Query("secretnb"))
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-	}
-
-	topPlayers, err := sh.businessSecret.GetTopPlayer(c.Request.Context(), secretNum)
+	topPlayers, err := sh.businessSecret.GetTopPlayer(c.Request.Context())
 	switch err {
 	case business.SecretNumNotValid:
 		c.JSON(http.StatusBadRequest, topUserRsp{Status: err.Error()})
