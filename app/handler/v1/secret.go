@@ -86,12 +86,13 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 
 	var score score
 	c.BindJSON(&score)
+
 	err := sh.businessSecret.ProcessScore(c.Request.Context(), entity.Score{
 		UserID:    score.UserID,
 		SecretNum: score.SecretNum,
 		Score:     score.Score,
 		UserName:  strings.ToUpper(score.Username),
-		UserAgent: score.UserAgent,
+		UserAgent: fmt.Sprintf("%s|%s", c.Request.RemoteAddr, score.UserAgent),
 	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
