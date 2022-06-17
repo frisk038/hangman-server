@@ -22,6 +22,7 @@ type score struct {
 	SecretNum int       `json:"secret_num" binding:"required"`
 	Score     int       `json:"score"`
 	Username  string    `json:"user_name"`
+	UserAgent string    `json:"user_agent"`
 }
 
 type username struct {
@@ -90,6 +91,7 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 		SecretNum: score.SecretNum,
 		Score:     score.Score,
 		UserName:  strings.ToUpper(score.Username),
+		UserAgent: score.UserAgent,
 	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)

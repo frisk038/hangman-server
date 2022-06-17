@@ -18,7 +18,7 @@ type Client struct {
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CONFLICT (NUM) DO NOTHING;"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
-const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME) VALUES ($1, $2, $3, NULLIF($4, ''));"
+const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME, USERAGENT) VALUES ($1, $2, $3, NULLIF($4, ''), $5);"
 const updateUserName = "UPDATE userscore SET name = COALESCE($1, name) WHERE userid = $2 AND secretnum = $3 AND name IS NULL RETURNING userid;"
 const selectTopPlayer = "SELECT name, SUM(score) AS highScore FROM userscore WHERE playdt >= DATE_TRUNC('week',NOW()) AND name is not NULL GROUP BY name ORDER BY highScore DESC LIMIT 5;"
 
@@ -57,7 +57,7 @@ func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
 }
 
 func (c *Client) InsertUserScore(ctx context.Context, score entity.Score) error {
-	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score, score.UserName)
+	row, _ := c.db.Query(ctx, insertUserScore, score.UserID, score.SecretNum, score.Score, score.UserName, score.UserAgent)
 	defer row.Close()
 	return row.Err()
 }

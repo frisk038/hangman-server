@@ -20,9 +20,10 @@ type Score struct {
 	SecretNum int
 	Score     int
 	UserName  string
+	UserAgent string
 }
 
-func (s Score) Validate() error {
+func (s *Score) Validate() error {
 	if s.SecretNum <= 0 {
 		return fmt.Errorf("%w : (%s|%d)", business.SecretNumNotValid, s.UserID.String(), s.SecretNum)
 	}
