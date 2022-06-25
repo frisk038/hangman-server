@@ -18,6 +18,7 @@ type Client struct {
 const selectYesterdayNum = "SELECT NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertTodaySecret = "INSERT INTO SECRET (NUM, VALUE) VALUES($1, $2) ON CONFLICT (NUM) DO NOTHING;"
 const selectTodaySecret = "SELECT NUM, VALUE FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
+const selectYesterdaySecret = "SELECT PICKEDDT, NUM FROM SECRET ORDER BY SECRETID DESC LIMIT 1;"
 const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME, USERAGENT) VALUES ($1, $2, $3, NULLIF($4, ''), $5);"
 const updateUserName = "UPDATE userscore SET name = COALESCE($1, name) WHERE userid = $2 AND secretnum = $3 AND name IS NULL RETURNING userid;"
 const selectTopPlayer = "SELECT name, SUM(score) AS highScore FROM userscore WHERE playdt >= DATE_TRUNC('week',NOW()) AND name is not NULL GROUP BY name ORDER BY highScore DESC LIMIT 5;"
@@ -53,6 +54,12 @@ func (c *Client) InsertTodaySecret(ctx context.Context, secret entity.Secret) er
 func (c *Client) SelectTodaySecret(ctx context.Context) (entity.Secret, error) {
 	var secret entity.Secret
 	err := c.db.QueryRow(ctx, selectTodaySecret).Scan(&secret.Number, &secret.SecretWord)
+	return secret, err
+}
+
+func (c *Client) SelectYesterdaySecret(ctx context.Context) (entity.Secret, error) {
+	var secret entity.Secret
+	err := c.db.QueryRow(ctx, selectYesterdaySecret).Scan(&secret.PickedDt, &secret.Number)
 	return secret, err
 }
 

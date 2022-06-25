@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/frisk038/hangman-server/app/cron"
 	v1 "github.com/frisk038/hangman-server/app/handler/v1"
 	"github.com/frisk038/hangman-server/business/usecase"
 	"github.com/frisk038/hangman-server/infra/repository"
@@ -38,8 +37,8 @@ func main() {
 	router.GET("/top", handlers.SelectTopUser)
 
 	// Create cron task
-	c := cron.NewCronMidnight(ps.InsertSecretTask)
-	c.Start()
+	// c := cron.NewCronMidnight(ps.InsertSecretTask)
+	// c.Start()
 
 	router.Run(":" + port)
 }

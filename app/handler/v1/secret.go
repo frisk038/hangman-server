@@ -92,10 +92,10 @@ func (sh SecretHandler) PostScore(c *gin.Context) {
 		SecretNum: score.SecretNum,
 		Score:     score.Score,
 		UserName:  strings.ToUpper(score.Username),
-		UserAgent: fmt.Sprintf("%s|%s|%s",
-			c.Request.RemoteAddr,
+		UserAgent: fmt.Sprintf("%s|%s",
+			c.GetHeader("X-forwarded-for"),
 			score.UserAgent,
-			c.GetHeader("X-forwarded-for")),
+		),
 	})
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)

@@ -21,6 +21,7 @@ type repository interface {
 	InsertUserScore(ctx context.Context, score entity.Score) error
 	UpdateUserName(ctx context.Context, score entity.Score) error
 	SelectTopPlayer(ctx context.Context) ([]entity.Score, error)
+	SelectYesterdaySecret(ctx context.Context) (entity.Secret, error)
 }
 
 type ProcessSecret struct {
@@ -52,6 +53,23 @@ func (ps ProcessSecret) InsertSecretTask() {
 }
 
 func (ps ProcessSecret) GetSecret(ctx context.Context) (entity.Secret, error) {
+	previousSecret, err := ps.repo.SelectYesterdaySecret(ctx)
+	if err != nil {
+		return entity.Secret{}, err
+	}
+
+	if previousSecret.PickedDt.Day() <= time.Now().Add(-24*time.Hour).Day() {
+		secret, err := ps.generateDailySecret()
+		if err != nil {
+			log.Print(err)
+		}
+		secret.Number = previousSecret.Number + 1
+
+		err = ps.repo.InsertTodaySecret(context.Background(), secret)
+		if err != nil {
+			log.Print(err)
+		}
+	}
 	return ps.repo.SelectTodaySecret(ctx)
 }
 

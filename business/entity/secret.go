@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/frisk038/hangman-server/business"
 	"github.com/gofrs/uuid"
@@ -12,6 +13,7 @@ import (
 type Secret struct {
 	SecretWord string
 	Number     int
+	PickedDt   time.Time
 }
 
 // Score holds user score info
