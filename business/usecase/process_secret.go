@@ -58,7 +58,7 @@ func (ps ProcessSecret) GetSecret(ctx context.Context) (entity.Secret, error) {
 		return entity.Secret{}, err
 	}
 
-	if previousSecret.PickedDt.Day() < time.Now().Add(-24*time.Hour).Day() {
+	if previousSecret.PickedDt.Truncate(24 * time.Hour).Before(time.Now().Truncate(24 * time.Hour)) {
 		secret, err := ps.generateDailySecret()
 		if err != nil {
 			log.Print(err)
