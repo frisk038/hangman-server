@@ -46,6 +46,11 @@ type topUserRsp struct {
 	Status  string    `json:"status"`
 }
 
+type gifWinRsp struct {
+	Url string `json:"url"`
+	Msg string `json:"msg"`
+}
+
 type BusinessSecret interface {
 	GetSecret(ctx context.Context) (entity.Secret, error)
 	ProcessScore(ctx context.Context, score entity.Score) error
@@ -53,12 +58,17 @@ type BusinessSecret interface {
 	GetTopPlayer(ctx context.Context) ([]entity.Score, error)
 }
 
-type SecretHandler struct {
-	businessSecret BusinessSecret
+type businessGif interface {
+	GetGif() (string, error)
 }
 
-func NewSecretHandler(bs BusinessSecret) SecretHandler {
-	return SecretHandler{businessSecret: bs}
+type SecretHandler struct {
+	businessSecret BusinessSecret
+	bgif           businessGif
+}
+
+func NewSecretHandler(bs BusinessSecret, bg businessGif) SecretHandler {
+	return SecretHandler{businessSecret: bs, bgif: bg}
 }
 
 func (sh SecretHandler) GetSecret(c *gin.Context) {
@@ -141,5 +151,17 @@ func (sh SecretHandler) SelectTopUser(c *gin.Context) {
 		c.JSON(http.StatusOK, topUserRsp{TopUser: jsTopPlayers, Status: "Ok"})
 	default:
 		c.JSON(http.StatusInternalServerError, topUserRsp{Status: err.Error()})
+	}
+}
+
+func (sh SecretHandler) GetSuccessGif(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	url, err := sh.bgif.GetGif()
+	switch err {
+	case nil:
+		c.JSON(http.StatusOK, gifWinRsp{Url: url})
+	default:
+		c.JSON(http.StatusInternalServerError, gifWinRsp{Msg: err.Error()})
+
 	}
 }
