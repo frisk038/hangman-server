@@ -22,6 +22,7 @@ const selectYesterdaySecret = "SELECT PICKEDDT, NUM FROM SECRET ORDER BY SECRETI
 const insertUserScore = "INSERT INTO USERSCORE (USERID, SECRETNUM, SCORE, NAME, USERAGENT) VALUES ($1, $2, $3, NULLIF($4, ''), $5);"
 const updateUserName = "UPDATE userscore SET name = COALESCE($1, name) WHERE userid = $2 AND secretnum = $3 AND name IS NULL RETURNING userid;"
 const selectTopPlayer = "SELECT name, SUM(score) AS highScore FROM userscore WHERE playdt >= DATE_TRUNC('week',NOW()) AND name is not NULL GROUP BY name ORDER BY highScore DESC LIMIT 5;"
+const selectWeekTopPlayer = "SELECT name, SUM(score) AS highScore FROM userscore WHERE secretnum >= $1 - 7 and secretnum < $1 AND name is not NULL GROUP BY name ORDER BY highScore DESC LIMIT 1;"
 
 // const selectTopPlayer = "select name, score from userscore where SECRETNUM = $1 AND NAME is not null  ORDER BY score DESC LIMIT 5;"
 
@@ -108,4 +109,14 @@ func (c *Client) SelectTopPlayer(ctx context.Context) ([]entity.Score, error) {
 		topN = append(topN, top)
 	}
 	return topN, row.Err()
+}
+
+func (c *Client) SelectWeeklyTopPlayer(ctx context.Context, secretNum int) (entity.Score, error) {
+	var top entity.Score
+	err := c.db.QueryRow(ctx, selectWeekTopPlayer, secretNum).Scan(&top.UserName, &top.Score)
+	if err != nil {
+		return entity.Score{}, err
+	}
+
+	return top, nil
 }

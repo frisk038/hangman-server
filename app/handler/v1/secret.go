@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/frisk038/hangman-server/business"
@@ -56,6 +57,7 @@ type BusinessSecret interface {
 	ProcessScore(ctx context.Context, score entity.Score) error
 	UpdateUserName(ctx context.Context, score entity.Score) error
 	GetTopPlayer(ctx context.Context) ([]entity.Score, error)
+	GetWeeklyTopPlayer(ctx context.Context, secretNum int) (entity.Score, error)
 }
 
 type businessGif interface {
@@ -83,7 +85,7 @@ func (sh SecretHandler) GetSecret(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("split failed"))
 		return
 	}
-	c.JSON(200, secretRsp{
+	c.JSON(http.StatusOK, secretRsp{
 		Number: secret.Number,
 		Secret: secretArr,
 	})
@@ -163,5 +165,30 @@ func (sh SecretHandler) GetSuccessGif(c *gin.Context) {
 	default:
 		c.JSON(http.StatusInternalServerError, gifWinRsp{Msg: err.Error()})
 
+	}
+}
+
+func (sh SecretHandler) GetWeeklyTopPlayer(c *gin.Context) {
+	var err error
+	c.Header("Access-Control-Allow-Origin", "*")
+	secretNumStr, ok := c.GetQuery("secretnum")
+	if !ok || secretNumStr == "" {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("secretnum is required"))
+		return
+	}
+	secretNum, err := strconv.Atoi(secretNumStr)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("secretnum is not valid"))
+		return
+	}
+
+	topPlayer, err := sh.businessSecret.GetWeeklyTopPlayer(c.Request.Context(), secretNum)
+	switch err {
+	case business.SecretNumNotValid:
+		c.JSON(http.StatusBadRequest, topUserRsp{Status: err.Error()})
+	case nil:
+		c.JSON(http.StatusOK, topUser{Username: topPlayer.UserName, Score: topPlayer.Score})
+	default:
+		c.JSON(http.StatusInternalServerError, topUserRsp{Status: err.Error()})
 	}
 }

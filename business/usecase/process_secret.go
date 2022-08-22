@@ -22,6 +22,7 @@ type repository interface {
 	UpdateUserName(ctx context.Context, score entity.Score) error
 	SelectTopPlayer(ctx context.Context) ([]entity.Score, error)
 	SelectYesterdaySecret(ctx context.Context) (entity.Secret, error)
+	SelectWeeklyTopPlayer(ctx context.Context, secretNum int) (entity.Score, error)
 }
 
 type ProcessSecret struct {
@@ -120,4 +121,8 @@ func (ps ProcessSecret) UpdateUserName(ctx context.Context, score entity.Score) 
 
 func (ps ProcessSecret) GetTopPlayer(ctx context.Context) ([]entity.Score, error) {
 	return ps.repo.SelectTopPlayer(ctx)
+}
+
+func (ps ProcessSecret) GetWeeklyTopPlayer(ctx context.Context, secretNum int) (entity.Score, error) {
+	return ps.repo.SelectWeeklyTopPlayer(ctx, secretNum)
 }

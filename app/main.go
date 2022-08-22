@@ -42,5 +42,6 @@ func main() {
 	router.POST("/user", handlers.UpdateUserName)
 	router.GET("/top", handlers.SelectTopUser)
 	router.GET("/wingif", handlers.GetSuccessGif)
+	router.GET("/weeklywinner", handlers.GetWeeklyTopPlayer)
 	router.Run(":" + port)
 }
