@@ -4,6 +4,7 @@ module github.com/frisk038/hangman-server
 go 1.15
 
 require (
+	github.com/bluele/gcache v0.0.2
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/jackc/pgx/v4 v4.15.0

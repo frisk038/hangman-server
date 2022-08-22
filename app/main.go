@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/bluele/gcache"
 	v1 "github.com/frisk038/hangman-server/app/handler/v1"
 	"github.com/frisk038/hangman-server/business/usecase"
 	"github.com/frisk038/hangman-server/infra/adapter/giphy"
@@ -26,12 +27,14 @@ func main() {
 	// Giphy adapter
 	giphy := giphy.NewGiphy()
 
+	cache := gcache.New(1).LRU().Build()
+
 	// Create business
 	ps := usecase.NewProcessSecret(repo)
-	gf := usecase.NewProcessGIF(giphy)
+	gf := usecase.NewProcessGIF(giphy, cache)
 
 	// Create handler
-	handlers := v1.NewSecretHandler(ps, gf)
+	handlers := v1.NewSecretHandler(ps, &gf)
 
 	gin.SetMode(gin.ReleaseMode)
 
