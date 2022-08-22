@@ -171,7 +171,7 @@ func (sh SecretHandler) GetSuccessGif(c *gin.Context) {
 func (sh SecretHandler) GetWeeklyTopPlayer(c *gin.Context) {
 	var err error
 	c.Header("Access-Control-Allow-Origin", "*")
-	secretNumStr, ok := c.GetQuery("secretnum")
+	secretNumStr, ok := c.GetQuery("secretnb")
 	if !ok || secretNumStr == "" {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("secretnum is required"))
 		return
